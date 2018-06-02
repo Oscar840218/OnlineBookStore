@@ -70,17 +70,21 @@ public class CustomerController {
     @GetMapping("/profile")
     public ResponseEntity<Customer> showProfile(HttpServletRequest request) {
 
-        Integer userId = UserLoginInfo.getInstance().getUserId();
+        Optional<Integer> userId = Optional.ofNullable(UserLoginInfo.getInstance().getUserId());
 
-        if(userId !=null) {
+        if(userId.isPresent()) {
 
-            Customer customer= customerRepository.findById(userId).orElse(null);
+            Optional<Customer> customer = Optional.ofNullable(customerRepository.findById(userId.get()).orElse(null));
 
-            return new ResponseEntity<>(customer, HttpStatus.OK);
-
+            if(customer.isPresent()) {
+                return new ResponseEntity<>(customer.get(), HttpStatus.OK);
+            } else {
+                return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+            }
         } else {
             return new ResponseEntity<>(HttpStatus.FORBIDDEN);
         }
+
 
 
     }
